@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,11 +25,17 @@ func main() {
 }
 
 func run(ctx context.Context, cancel context.CancelFunc, httpPort int, dataDir string) int {
-	logger, err := initializeLogger()
+	logger, close, err := initializeLogger(os.Getenv("LINKO_LOG_FILE"))
 	if err != nil {
-		log.Printf("failed to initialize logger: %s", err)
+		fmt.Fprintf(os.Stderr, "failed to initialize logger: %s", err)
 		return 1
 	}
+	defer func() {
+		err := close()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error while cleaning up: %v\n", err)
+		}
+	}()
 
 	st, err := store.New(dataDir, logger)
 	if err != nil {
