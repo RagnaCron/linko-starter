@@ -20,15 +20,14 @@ type server struct {
 func newServer(store store.Store, port int, cancel context.CancelFunc) *server {
 	mux := http.NewServeMux()
 
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: mux,
+	s := &server{
+		store:  store,
+		cancel: cancel,
 	}
 
-	s := &server{
-		httpServer: srv,
-		store:      store,
-		cancel:     cancel,
+	s.httpServer = &http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: requestLogger(logger)(mux),
 	}
 
 	mux.HandleFunc("GET /", s.handlerIndex)
