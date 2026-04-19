@@ -55,7 +55,7 @@ func (s *server) start() error {
 		return err
 	}
 
-	s.logger.Info(fmt.Sprintf("Linko is running on http://localhost:%d", addr.Port))
+	s.logger.Debug(fmt.Sprintf("Linko is running on http://localhost:%d", addr.Port))
 
 	if err := s.httpServer.Serve(ln); !errors.Is(err, http.ErrServerClosed) {
 		return err
@@ -64,7 +64,7 @@ func (s *server) start() error {
 }
 
 func (s *server) shutdown(ctx context.Context) error {
-	s.logger.Info("Linko is shutting down")
+	s.logger.Debug("Linko is shutting down")
 	return s.httpServer.Shutdown(ctx)
 }
 
