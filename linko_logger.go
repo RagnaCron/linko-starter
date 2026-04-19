@@ -22,7 +22,7 @@ func initializeLogger(logFile string) (*slog.Logger, closeFunc, error) {
 		return nil, func() error { return nil }, fmt.Errorf("failed to open log file: %w", err)
 	}
 	bufferedFile := bufio.NewWriterSize(file, 8192)
-	infoHandler := slog.NewTextHandler(bufferedFile, &slog.HandlerOptions{
+	infoHandler := slog.NewJSONHandler(bufferedFile, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	})
 	return slog.New(slog.NewMultiHandler(debugHandler, infoHandler)), func() error {
