@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
+	pkgerr "github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -54,8 +56,9 @@ func (s *server) validatePassword(password, stored string) (bool, error) {
 		return false, nil
 	}
 	if err != nil {
-		// s.logger.Error("error validating password",
-		// 	"error", err)
+		stc := pkgerr.WithStack(err)
+		s.logger.Error("error validating password",
+			"error", fmt.Sprintf("%+v", stc))
 		return false, err
 	}
 	return true, nil
