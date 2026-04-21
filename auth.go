@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	pkgerr "github.com/pkg/errors"
@@ -56,10 +55,7 @@ func (s *server) validatePassword(password, stored string) (bool, error) {
 		return false, nil
 	}
 	if err != nil {
-		stc := pkgerr.WithStack(err)
-		s.logger.Error("error validating password",
-			"error", fmt.Sprintf("%+v", stc))
-		return false, err
+		return false, pkgerr.WithStack(err)
 	}
 	return true, nil
 }
