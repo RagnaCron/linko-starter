@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"boot.dev/linko/internal/store"
+	"github.com/RagnaCron/linko-starter/internal/store"
 )
 
 func main() {

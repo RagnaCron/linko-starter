@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"os"
 
-	"boot.dev/linko/internal/store"
+	"github.com/RagnaCron/linko-starter/internal/store"
 )
 
 type server struct {

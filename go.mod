@@ -1,4 +1,4 @@
-module boot.dev/linko
+module github.com/RagnaCron/linko-starter
 
 go 1.26
 

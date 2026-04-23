@@ -2,25 +2,19 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 
-	pkgerr "github.com/pkg/errors"
+	"github.com/RagnaCron/linko-starter/internal/linkoerr"
 )
-
-type stackTracer interface {
-	error
-	StackTrace() pkgerr.StackTrace
-}
 
 type closeFunc func() error
 
 func initializeLogger(logFile string) (*slog.Logger, closeFunc, error) {
 	debugHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level:       slog.LevelDebug,
-		ReplaceAttr: replaceAttr,
+		ReplaceAttr: linkoerr.ReplaceAttr,
 	})
 	if logFile == "" {
 		return slog.New(debugHandler), func() error { return nil }, nil
@@ -33,7 +27,7 @@ func initializeLogger(logFile string) (*slog.Logger, closeFunc, error) {
 	bufferedFile := bufio.NewWriterSize(file, 8192)
 	infoHandler := slog.NewJSONHandler(bufferedFile, &slog.HandlerOptions{
 		Level:       slog.LevelInfo,
-		ReplaceAttr: replaceAttr,
+		ReplaceAttr: linkoerr.ReplaceAttr,
 	})
 	return slog.New(slog.NewMultiHandler(debugHandler, infoHandler)), func() error {
 		err := bufferedFile.Flush()
@@ -46,23 +40,4 @@ func initializeLogger(logFile string) (*slog.Logger, closeFunc, error) {
 		}
 		return nil
 	}, nil
-}
-
-func replaceAttr(groups []string, a slog.Attr) slog.Attr {
-	if a.Key == "error" {
-		err, ok := a.Value.Any().(error)
-		if !ok {
-			return a
-		}
-		if stackErr, ok := errors.AsType[stackTracer](err); ok {
-			return slog.GroupAttrs("error", slog.Attr{
-				Key:   "message",
-				Value: slog.StringValue(stackErr.Error()),
-			}, slog.Attr{
-				Key:   "stack_trace",
-				Value: slog.StringValue(fmt.Sprintf("%+v", stackErr.StackTrace())),
-			})
-		}
-	}
-	return a
 }
