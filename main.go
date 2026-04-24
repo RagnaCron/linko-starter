@@ -4,11 +4,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/RagnaCron/linko-starter/internal/build"
 	"github.com/RagnaCron/linko-starter/internal/store"
 )
 
@@ -36,6 +38,10 @@ func run(ctx context.Context, cancel context.CancelFunc, httpPort int, dataDir s
 			fmt.Fprintf(os.Stderr, "error while cleaning up: %v", err)
 		}
 	}()
+	logger = logger.With(
+		slog.String("git_sha", build.GitSHA),
+		slog.String("build_time", build.BuildTime),
+	)
 
 	st, err := store.New(dataDir, logger)
 	if err != nil {
