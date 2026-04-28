@@ -30,7 +30,7 @@ func newServer(store store.Store, port int, cancel context.CancelFunc, logger *s
 
 	s.httpServer = &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: requestLogger(s.logger)(mux),
+		Handler: requestID()(requestLogger(s.logger)(mux)),
 	}
 
 	mux.HandleFunc("GET /", s.handlerIndex)
