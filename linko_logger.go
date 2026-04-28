@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log/slog"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"github.com/RagnaCron/linko-starter/internal/linkoerr"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-isatty"
+	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
 type closeFunc func() error
@@ -17,30 +17,44 @@ func initializeLogger(logFile string) (*slog.Logger, closeFunc, error) {
 	debugHandler := tint.NewHandler(os.Stderr, &tint.Options{
 		Level:       slog.LevelDebug,
 		ReplaceAttr: linkoerr.ReplaceAttr,
-		NoColor:     isatty.IsTerminal(os.Stderr.Fd()) || isatty.IsCygwinTerminal(os.Stderr.Fd()),
+		NoColor:     !(isatty.IsTerminal(os.Stderr.Fd()) || isatty.IsCygwinTerminal(os.Stderr.Fd())),
 	})
 	if logFile == "" {
 		return slog.New(debugHandler), func() error { return nil }, nil
 	}
 
-	file, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o644)
-	if err != nil {
-		return nil, func() error { return nil }, fmt.Errorf("failed to open log file: %w", err)
+	// file, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o644)
+	// if err != nil {
+	// 	return nil, func() error { return nil }, fmt.Errorf("failed to open log file: %w", err)
+	// }
+	// bufferedFile := bufio.NewWriterSize(file, 8192)
+	lumberLogger := &lumberjack.Logger{
+		Filename:   logFile,
+		MaxSize:    1,
+		MaxAge:     28,
+		MaxBackups: 10,
+		LocalTime:  false,
+		Compress:   true,
 	}
-	bufferedFile := bufio.NewWriterSize(file, 8192)
-	infoHandler := slog.NewJSONHandler(bufferedFile, &slog.HandlerOptions{
-		Level:       slog.LevelInfo,
+	infoHandler := slog.NewJSONHandler(lumberLogger, &slog.HandlerOptions{
+		// Level:       slog.LevelInfo,
 		ReplaceAttr: linkoerr.ReplaceAttr,
 	})
+
 	return slog.New(slog.NewMultiHandler(debugHandler, infoHandler)), func() error {
-		err := bufferedFile.Flush()
+		// err := bufferedFile.Flush()
+		// if err != nil {
+		// 	return fmt.Errorf("could not flush buffer to file: %w", err)
+		// }
+		// err = file.Close()
+		// if err != nil {
+		// 	return fmt.Errorf("could not close log file: %w", err)
+		// }
+		err := lumberLogger.Close()
 		if err != nil {
-			return fmt.Errorf("could not flush buffer to file: %w", err)
+			return fmt.Errorf("could not close lumberLogger: %w", err)
 		}
-		err = file.Close()
-		if err != nil {
-			return fmt.Errorf("could not close log file: %w", err)
-		}
+
 		return nil
 	}, nil
 }
