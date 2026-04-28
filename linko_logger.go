@@ -7,14 +7,17 @@ import (
 	"os"
 
 	"github.com/RagnaCron/linko-starter/internal/linkoerr"
+	"github.com/lmittmann/tint"
+	"github.com/mattn/go-isatty"
 )
 
 type closeFunc func() error
 
 func initializeLogger(logFile string) (*slog.Logger, closeFunc, error) {
-	debugHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+	debugHandler := tint.NewHandler(os.Stderr, &tint.Options{
 		Level:       slog.LevelDebug,
 		ReplaceAttr: linkoerr.ReplaceAttr,
+		NoColor:     isatty.IsTerminal(os.Stderr.Fd()) || isatty.IsCygwinTerminal(os.Stderr.Fd()),
 	})
 	if logFile == "" {
 		return slog.New(debugHandler), func() error { return nil }, nil
