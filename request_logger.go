@@ -76,7 +76,6 @@ func requestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
 				attrs = append(attrs, slog.Any("error", logContext.Error))
 			}
 			logger.Info("Served request", attrs...)
-
 		})
 	}
 }
@@ -85,5 +84,10 @@ func httpError(ctx context.Context, w http.ResponseWriter, status int, err error
 	if logCtx, ok := ctx.Value(logContextKey).(*LogContext); ok {
 		logCtx.Error = err
 	}
-	http.Error(w, err.Error(), status)
+	switch status {
+	case 401, 403, 500:
+		http.Error(w, http.StatusText(status), status)
+	default:
+		http.Error(w, err.Error(), status)
+	}
 }
