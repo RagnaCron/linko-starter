@@ -72,7 +72,7 @@ func requestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
 				slog.String("request_id", r.Header.Get("X-Request-ID")),
 			}
 			if logContext.Username != "" {
-				attrs = append(attrs, slog.String("user", logContext.Username))
+				attrs = append(attrs, slog.String("user", "[REDACTED]"))
 			}
 			if logContext.Error != nil {
 				attrs = append(attrs, slog.Any("error", logContext.Error))

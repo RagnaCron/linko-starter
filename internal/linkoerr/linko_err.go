@@ -1,9 +1,12 @@
+// Package linkoerr
 package linkoerr
 
 import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/url"
+	"slices"
 
 	pkgerr "github.com/pkg/errors"
 )
@@ -18,12 +21,21 @@ type multiError interface {
 	Unwrap() []error
 }
 
+var sensitiveKeys = []string{"password", "key", "apiKey", "secret", "pin", "creaditcardno", "user"}
+
 func ReplaceAttr(groups []string, a slog.Attr) slog.Attr {
+	if slices.Contains(sensitiveKeys, a.Key) {
+		return slog.String(a.Key, "[REDACTED]")
+	}
+
+	a = maybeRedactURL(a)
+
 	if a.Key == "error" {
 		err, ok := a.Value.Any().(error)
 		if !ok {
 			return a
 		}
+
 		var attrs []slog.Attr
 		if me, ok := errors.AsType[multiError](err); ok {
 			for i, e := range me.Unwrap() {
@@ -39,6 +51,21 @@ func ReplaceAttr(groups []string, a slog.Attr) slog.Attr {
 		return slog.GroupAttrs("error", attrs...)
 	}
 	return a
+}
+
+func maybeRedactURL(a slog.Attr) slog.Attr {
+	if a.Value.Kind() != slog.KindString {
+		return a
+	}
+
+	s := a.Value.String()
+	u, err := url.Parse(s)
+	if err != nil || u.User == nil {
+		return a
+	}
+
+	u.User = url.UserPassword(u.User.Username(), "[REDACTED]")
+	return slog.String(a.Key, u.String())
 }
 
 func errorAttrs(err error) []slog.Attr {
