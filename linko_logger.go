@@ -17,7 +17,7 @@ func initializeLogger(logFile string) (*slog.Logger, closeFunc, error) {
 	debugHandler := tint.NewHandler(os.Stderr, &tint.Options{
 		Level:       slog.LevelDebug,
 		ReplaceAttr: linkoerr.ReplaceAttr,
-		NoColor:     !(isatty.IsTerminal(os.Stderr.Fd()) || isatty.IsCygwinTerminal(os.Stderr.Fd())),
+		NoColor:     !isatty.IsTerminal(os.Stderr.Fd()) || !isatty.IsCygwinTerminal(os.Stderr.Fd()),
 	})
 	if logFile == "" {
 		return slog.New(debugHandler), func() error { return nil }, nil
