@@ -27,6 +27,17 @@ func main() {
 }
 
 func run(ctx context.Context, cancel context.CancelFunc, httpPort int, dataDir string) int {
+	tracer, err := initTracing(ctx)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to initialize tracer: %s", err)
+		return 1
+	}
+	defer func() {
+		if err := tracer(context.Background()); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to shutdown tracer: %s", err)
+		}
+	}()
+
 	logger, close, err := initializeLogger(os.Getenv("LINKO_LOG_FILE"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to initialize logger: %s", err)
