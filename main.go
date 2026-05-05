@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/RagnaCron/linko-starter/internal/build"
-	"github.com/RagnaCron/linko-starter/internal/store"
+	"github.com/RagnaCron/linko/internal/build"
+	"github.com/RagnaCron/linko/internal/store"
 )
 
 func main() {

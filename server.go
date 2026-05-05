@@ -12,7 +12,7 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
-	"github.com/RagnaCron/linko-starter/internal/store"
+	"github.com/RagnaCron/linko/internal/store"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

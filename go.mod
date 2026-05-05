@@ -1,4 +1,4 @@
-module github.com/RagnaCron/linko-starter
+module github.com/RagnaCron/linko
 
 go 1.26
 

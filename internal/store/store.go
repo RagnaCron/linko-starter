@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/RagnaCron/linko-starter/internal/linkoerr"
+	"github.com/RagnaCron/linko/internal/linkoerr"
 )
 
 type ShortURL struct {

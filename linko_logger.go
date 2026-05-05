@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/RagnaCron/linko-starter/internal/linkoerr"
+	"github.com/RagnaCron/linko/internal/linkoerr"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-isatty"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
